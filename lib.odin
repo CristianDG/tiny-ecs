@@ -62,7 +62,7 @@ entity_remove_component :: proc(entity_id: EntityID, com: $T/typeid){
 entity_remove :: proc(entity_id: EntityID) {
   entity := &entity_storage[entity_id]
 
-  if !(int(entity_id) > 0 && int(entity_id) < len(entity_storage)) do return
+  if !(int(entity_id) >= 0 && int(entity_id) < len(entity_storage)) do return
 
   for comp, idx in entity.components {
     entity_remove_component(entity_id, comp)
@@ -79,7 +79,16 @@ query_components :: proc() {
 }
 
 entity_is_active :: proc(entity: ^Entity) -> bool {
+  if entity == nil do return false
   return (.ACTIVE in entity.flags)
+}
+
+entity_ref :: proc(id: EntityID) -> (entity: ^Entity, ok: bool) {
+  if int(id) <= 0 && int(id) > len(entity_storage) {
+    return nil, false
+  }
+
+  return &entity_storage[id],true
 }
 
 entity_add_component :: proc(entity_id: EntityID, com: $T) {
