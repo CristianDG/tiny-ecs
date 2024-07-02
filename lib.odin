@@ -1,9 +1,10 @@
-package ecs_engine
+package tiny_ecs
 
 /*
 TODO:
-- [ ] memory managment with temporary entities
-- [ ] add union?
+- [ ] ECStorage struct
+- [ ] usar `generational arenas`
+- [ ] component register usando union?
 - [ ] entity internal use via pointer?
 */
 
@@ -134,9 +135,7 @@ component_add :: proc(item: $T) -> ComponentID {
 }
 
 panic_not_t :: proc($T: typeid){
-  builder := strings.builder_make(allocator=context.temp_allocator)
-  fmt.sbprintf(&builder, "Component not registered: %v", reflect.typeid_elem(T))
-  panic(strings.to_string(builder))
+  panic(fmt.tprintf("Component not registered: %v", reflect.typeid_elem(T)))
 }
 
 component_query :: proc($T: typeid) -> []T {
