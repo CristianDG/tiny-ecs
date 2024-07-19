@@ -51,7 +51,7 @@ entity_register :: proc() -> EntityID {
   return EntityID(len(entity_storage)-1)
 }
 
-entity_remove_component :: proc(entity_id: EntityID, com: $T/typeid){
+entity_remove_component :: proc(entity_id: EntityID, com: typeid){
   entity := entity_storage[entity_id]
   comp_id, ok_comp_id := entity.components[com]
   if !ok_comp_id do return
@@ -97,7 +97,7 @@ entity_add_component :: proc(entity_id: EntityID, com: $T) {
   entity_storage[entity_id].components[T] = comp_id
 }
 
-entity_get_component_read_write :: proc(entity_id: EntityID, $T: typeid) -> (component: ^T, ok: bool) {
+entity_get_component_ptr :: proc(entity_id: EntityID, $T: typeid) -> (component: ^T, ok: bool) {
   if !(int(entity_id) < len(entity_storage) && int(entity_id) >= 0) do return nil, false
   entity := entity_storage[entity_id]
   component_id := entity.components[T] or_return
@@ -106,13 +106,9 @@ entity_get_component_read_write :: proc(entity_id: EntityID, $T: typeid) -> (com
   return &component_list[component_id], true
 }
 
-entity_get_component_read_only :: proc(entity_id: EntityID, $T: typeid) -> (component: T, ok: bool) {
-  if !(int(entity_id) < len(entity_storage) && int(entity_id) >= 0) do return {}, false
-  entity := entity_storage[entity_id]
-  component_id := entity.components[T] or_return
-  component_list := component_query(T)
-
-  return component_list[component_id], true
+entity_get_component :: proc(entity_id: EntityID, $T: typeid) -> (component: T, ok: bool) {
+  res := entity_get_component_ptr(entity_id, T) or_return
+  return res^, true
 }
 
 component_add :: proc(item: $T) -> ComponentID {
